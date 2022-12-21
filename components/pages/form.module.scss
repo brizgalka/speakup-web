@@ -1,0 +1,28 @@
+.form {
+    position: relative;
+    top: 300px;
+    width: 450px;
+    height: 350px;
+    padding-top: 50px;
+    background: #233041;
+    margin: 0 auto;
+    text-align: center;
+    & input {
+        outline: none;
+        border: none;
+        position: relative;
+        width: 90%;
+        height: 40px;
+        margin-top: 20px;
+        padding: 10px;
+        font-size: 14px;
+        font-family: "Montserrat-Medium";
+    }
+    & button {
+        position: relative;
+        width: 130px;
+        margin: 10px;
+        height: 35px;
+        margin-top: 20px;
+    }
+}
