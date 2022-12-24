@@ -1,5 +1,5 @@
 import styles from "./index.module.scss"
-import {useState} from "react";
+import {useEffect, useState} from "react";
 
 export default function Index() {
 
@@ -11,6 +11,10 @@ export default function Index() {
         setMessages([...messages, message]);
         setMessage("")
     }
+
+    useEffect(() => {
+
+    })
 
     return(
         <main className = {styles.web}>
@@ -44,7 +48,7 @@ export default function Index() {
                         <div className={styles.dialog}>
                             {
                                 messages.map(item => {
-                                    return (<h1>{item}</h1>)
+                                    return (<h1 key = {Math.random()}>{item}</h1>)
                                 })
                             }
                         </div>
