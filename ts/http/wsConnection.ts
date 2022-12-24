@@ -1,53 +1,68 @@
-export default function connect() {
-    let socket: WebSocket;
-    let connected = false;
+import {useDispatch} from "react-redux";
+import {setRegisterConfirm} from "../redux/authSlice";
 
-    function changeConnectedStatus(to: boolean) {
-        connected = to
+export default class WsConnection {
+    static socket: WebSocket;
+    static connected = false;
+
+    static changeConnectedStatus(to: boolean) { WsConnection.connected = to }
+
+    static onMessage(event: any) {
+        WsConnection.changeConnectedStatus(true)
+        const message = JSON.parse(event.data)
+        console.log(message)
+        if(message["setWsUUID"] != undefined) {
+            localStorage["WsUUID"] = message["setWsUUID"]
+        }
+        if(message["verify"] != undefined) {
+            if(message["verify"] == "ok") {
+                console.log("Successful")
+            }
+        }
     }
 
-    changeConnectedStatus(false)
-
-    if (localStorage["WsUUID"] == undefined) localStorage["WsUUID"] = "no"
-
-    function connect_socket() {
-        socket = new WebSocket("ws://localhost:6061", String(localStorage["WsUUID"]));
-        socket.onopen = function (e) {
-            changeConnectedStatus(true)
-        };
-        socket.onmessage = function (event) {
-            changeConnectedStatus(true)
-            const message = JSON.parse(event.data)
-            console.log(message)
-            if (message["setWsUUID"] != undefined) {
-                localStorage["WsUUID"] = message["setWsUUID"]
-            }
-            if (message["verify"] != undefined) {
-                if (message["verify"] == "ok") {
-                    console.log("Successful")
-                }
-            }
-        };
-        socket.onclose = function (event) {
-            changeConnectedStatus(false)
-            connect_socket()
-        };
-        socket.onerror = function (error) {
-            changeConnectedStatus(false)
-        };
+    static onOpen(event: any) {
+        WsConnection.changeConnectedStatus(true)
     }
 
-    function heartbeat() {
-        if (!socket) return;
-        if (socket.readyState !== 1) return;
-        changeConnectedStatus(true)
-        socket.send(JSON.stringify({
+    static onClose(event: any) {
+        WsConnection.changeConnectedStatus(false)
+        WsConnection.connect_socket()
+    }
+
+    static onError(event: any) {
+        WsConnection.changeConnectedStatus(false)
+        console.log(event)
+    }
+
+    static connect_socket() {
+        WsConnection.socket = new WebSocket("ws://26.4.83.74:6061", String(localStorage["WsUUID"]));
+
+        WsConnection.socket.addEventListener("open", (event: any) =>  WsConnection.onOpen(event))
+        WsConnection.socket.addEventListener("message", (event: any) => WsConnection.onMessage(event))
+        WsConnection.socket.addEventListener("close", (event: any) =>WsConnection.onClose(event))
+        WsConnection.socket.addEventListener("error",(event: any) => WsConnection.onError(event))
+    }
+
+    static heartbeat() {
+        if (!WsConnection.socket) return;
+        if (WsConnection.socket.readyState !== 1) return;
+        WsConnection.changeConnectedStatus(true)
+        WsConnection.socket.send(JSON.stringify({
                 "message": "heartbeat",
                 "uuid": String(localStorage["WsUUID"])
             }
         ));
     }
 
-    const interval = setInterval(heartbeat, 500);
-    connect_socket()
-};
+    static createConnection() {
+        WsConnection.changeConnectedStatus(false)
+
+        if (localStorage["WsUUID"] == undefined) localStorage["WsUUID"] = "no"
+
+        const interval = setInterval(() => WsConnection.heartbeat(), 500);
+        WsConnection.connect_socket()
+    }
+
+
+}

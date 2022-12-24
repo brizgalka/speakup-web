@@ -28,12 +28,14 @@ export default function ForgotPassword() {
 
         try {
             const result = await forgotPassword(username)
-            ErrorHandler({
-                title: "Ops!",
-                text: "Код был отправлен",
-                icon: "success",
-                confirmButtonText:"ok"
-            })
+            if(result) {
+                ErrorHandler({
+                    title: "Successful!",
+                    text: "Код был отправлен",
+                    icon: "success",
+                    confirmButtonText:"ok"
+                })
+            }
         } catch (e: any) {
             setButtonActive(true)
             ErrorHandler({

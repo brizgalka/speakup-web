@@ -8,7 +8,7 @@ export const registration = async (email: string,password: string,password_confi
         uuid: localStorage.getItem("WsUUID")
     }
     console.log(bodyFormData)
-    const response = await $host.post(`api/auth/registration`,bodyFormData)
+    const response = await $host.post(`api/auth/register`,bodyFormData)
     return response
 }
 
@@ -67,13 +67,21 @@ export const createChat = async (username: string) => {
     return response
 }
 
-export const getUserData = async () => {
-    const response = await $host.get(`api/auth/getUsenData`);
+export const validateVerifyToken = async (verifyToken: string) => {
+    const bodyFormData = {
+        verifyToken,
+        uuid: localStorage.getItem("WsUUID")
+    }
+    const response = await $host.post(`api/auth/validate-verifyToken`,bodyFormData)
     return response
 }
 
-export const loadUser = async () => {
-    const token = localStorage.getItem("token");
-    const response = await $host.get(`api/user`)
+export const getDialogs = async () => {
+    const response = await $host.get(`api/user/getDialogs`, {uuid: localStorage.getItem("WsUUID")});
+    return response
+}
+
+export const getUserData = async () => {
+    const response = await $host.get(`api/user/getUserData`);
     return response
 }

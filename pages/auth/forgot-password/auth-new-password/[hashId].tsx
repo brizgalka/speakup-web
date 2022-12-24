@@ -53,7 +53,6 @@ export default function ForgotPassword() {
     const validHash = async (hashId: string) => {
         try {
             const result = await validateHashId(hashId)
-            console.log(result)
         } catch (e: any) {
             Router.push("/")
         }

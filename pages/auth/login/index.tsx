@@ -6,12 +6,14 @@ import Link from "next/link";
 import {login} from "../../../ts/http/userApi";
 import {useState} from "react";
 import {validatePassword,validateUsername} from "../../../ts/formValidator";
-import {registration} from "../../../ts/http/userApi";
-import {router} from "next/client";
+import {setIsLoggened, setUsername} from "../../../ts/redux/authSlice";
+import {useDispatch} from "react-redux";
 
 export default function loginPage() {
 
-    const [username,setUsername] = useState("");
+    const dispatch = useDispatch()
+
+    const [username,setUsernameInput] = useState("");
     const [password,setPassword] = useState("")
 
     const [buttonActive,setButtonActive] = useState(true)
@@ -28,8 +30,11 @@ export default function loginPage() {
 
         try {
             const result = await login(username,password)
-            console.log(result)
-            Router.push('/')
+            if(result) {
+                dispatch(setIsLoggened(true))
+                dispatch(setUsername(username))
+                Router.push("/")
+            }
         } catch (e: any) {
             setButtonActive(true)
             ErrorHandler({
@@ -45,7 +50,7 @@ export default function loginPage() {
         <>
             <div className={styles.form} style={{"height": 300}}>
                 <h1>Войти в аккаунт</h1>
-                <input value={username} onChange={e => setUsername(e.target.value)} placeholder={"Username"}/><br/>
+                <input value={username} onChange={e => setUsernameInput(e.target.value)} placeholder={"Username"}/><br/>
                 <input value={password} onChange={e => setPassword(e.target.value)} placeholder={"password"}/><br/>
                 <button disabled={!buttonActive} onClick={() => {
                     onLogin()

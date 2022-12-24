@@ -7,6 +7,7 @@ import {useState} from "react";
 import {validateEmail, validatePassword, validatePasswordMatch, validateUsername} from "../../../ts/formValidator";
 import {registration} from "../../../ts/http/userApi";
 import Router from "next/router";
+import {setRegisterConfirm} from "../../../ts/redux/authSlice";
 
 export default function Register() {
 
@@ -31,8 +32,11 @@ export default function Register() {
 
         try {
             const result = await registration(email,password,passwordAgain,username)
-            console.log(result)
-            Router.push('/')
+            if(result) {
+                console.log(result.data)
+                dispatch(setRegisterConfirm(false))
+                Router.push(`/auth/register/confirm-registration/${result.data.verifyToken}`)
+            }
         } catch (e: any) {
             setButtonActive(true)
             ErrorHandler({

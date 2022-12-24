@@ -4,16 +4,18 @@ import { HYDRATE } from "next-redux-wrapper";
 
 // Type for our state
 export interface userAuthState {
-    uuid: string;
-    isLoggened: boolean;
-    token: string | null;
+    uuid: string | undefined;
+    isLoggened: string | undefined;
+    username: string | undefined;
+    registerConfirm: boolean | undefined;
 }
 
 // Initial state
 const initialState: userAuthState = {
-    uuid: "",
-    isLoggened: false,
-    token: null
+    uuid: undefined,
+    isLoggened: undefined,
+    username: undefined,
+    registerConfirm: undefined
 };
 
 // Actual Slice
@@ -30,18 +32,25 @@ export const authSlice = createSlice({
             state.isLoggened = action.payload;
         },
 
-        setToken(state, action) {
-            state.token = action.payload
+        setUsername(state, action) {
+            state.username = action.payload
+        },
+
+        setRegisterConfirm(state, action) {
+            state.registerConfirm = action.payload
         }
+
     },
 });
 
 export const { setUUID } = authSlice.actions;
 export const { setIsLoggened } = authSlice.actions;
-export const { setToken } = authSlice.actions;
+export const { setUsername } = authSlice.actions;
+export const { setRegisterConfirm } = authSlice.actions;
 
 export const selectUUID = (state: AppState) => state.userAuth.uuid;
 export const selectIsLoggened = (state: AppState) => state.userAuth.isLoggened;
-export const selectToken = (state: AppState) => state.userAuth.token;
+export const selectUsername = (state: AppState) => state.userAuth.username;
+export const selectRegisterConfirm = (state: AppState) => state.userAuth.registerConfirm;
 
 export default authSlice.reducer;

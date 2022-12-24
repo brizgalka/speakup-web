@@ -5,7 +5,7 @@ var $host;
 if (typeof window !== 'undefined') {
 
     $host = axios.create({
-        baseURL: "http://localhost:6060/",
+        baseURL: "http://26.4.83.74:6060/",
         validateStatus: function (status: number) {
             return status < 500;
         },
