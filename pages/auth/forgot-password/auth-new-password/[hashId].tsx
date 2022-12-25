@@ -38,7 +38,7 @@ export default function ForgotPassword() {
             if(hashId != undefined) {
                 const result = await changePassword(hashId.toString(),password)
                 console.log(result)
-                Router.push('/login')
+                Router.push('/auth/login')
             }
         } catch (e: any) {
             setButtonActive(true)

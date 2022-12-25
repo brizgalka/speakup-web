@@ -99,7 +99,7 @@ export default function Index() {
                 <header className={styles.headerContent}>
                     <div>
                         <nav className={styles.userInfo}>
-                            <img src = {"http://localhost:6060/api/static/getUserLogo?username=default"}/>
+                            <img src = {process.env.NEXT_PUBLIC_apiHost + "api/static/getUserLogo?username=default"}/>
                             <div>
                                 <p>{username}</p>
                                 <p>Custom status...</p>
