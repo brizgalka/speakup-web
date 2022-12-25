@@ -8,6 +8,7 @@ import {validateEmail, validatePassword, validatePasswordMatch, validateUsername
 import {registration} from "../../../ts/http/userApi";
 import Router from "next/router";
 import {setRegisterConfirm} from "../../../ts/redux/authSlice";
+import Head from "next/head";
 
 export default function Register() {
 
@@ -50,6 +51,11 @@ export default function Register() {
 
     return(
         <>
+            <Head>
+                <title>Register</title>
+                <meta name="description" content="Register SpeakUp"/>
+                <link rel="icon" href = "/favicon.png"/>
+            </Head>
             <div className={styles.form} style={{"height": 400}}>
                 <h1>Зарегистрироваться</h1>
                 <input value = {username} onChange={e => setUsername(e.target.value)} placeholder={"Username"}/><br/>

@@ -1,3 +1,5 @@
+import {AxiosInstance} from "axios";
+
 import { $host } from "./index";
 
 export const registration = async (email: string,password: string,password_confirmation: string,username: string) => {
@@ -55,8 +57,15 @@ export const check = async () => {
     return response
 }
 
-export const sendMessage = async () => {
-    const response = await $host.get(`api/token/check`)
+export const sendMessage = async (chatId: number, message: string) => {
+    const bodyFormData = {
+        chatId,
+        message,
+        uuid: localStorage.getItem("WsUUID")
+    }
+    console.log("BODY")
+    console.log(bodyFormData.message)
+    const response = await $host.post(`api/user/sendMessage`,bodyFormData)
     return response
 }
 
@@ -64,6 +73,11 @@ export const createChat = async (username: string) => {
     const response = await $host.post("api/auth/createChat",{
         username
     });
+    return response
+}
+
+export const getUserLogo = async (username: string) => {
+    const response = await $host.get(`api/static/getUserLogo?username=${username}`)
     return response
 }
 
@@ -76,8 +90,20 @@ export const validateVerifyToken = async (verifyToken: string) => {
     return response
 }
 
+export const getMessages = async (chatId: number) => {
+    const bodyFormData = {
+        chatId,
+        uuid: localStorage.getItem("WsUUID")
+    }
+    const response = await $host.post(`api/user/getMessages`,bodyFormData)
+    return response
+}
+
 export const getDialogs = async () => {
-    const response = await $host.get(`api/user/getDialogs`, {uuid: localStorage.getItem("WsUUID")});
+    const bodyFormData = {
+        uuid: localStorage.getItem("WsUUID")
+    }
+    const response = await $host.post(`api/user/getDialogs`, bodyFormData);
     return response
 }
 

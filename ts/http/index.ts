@@ -1,11 +1,12 @@
 import axios from "axios";
+import {AxiosInstance} from "axios/index";
 
-var $host;
+var $host: AxiosInstance;
 
 if (typeof window !== 'undefined') {
 
     $host = axios.create({
-        baseURL: "http://26.4.83.74:6060/",
+        baseURL: process.env.NEXT_PUBLIC_apiHost,
         validateStatus: function (status: number) {
             return status < 500;
         },

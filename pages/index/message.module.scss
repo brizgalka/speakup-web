@@ -1,5 +1,17 @@
 .message {
-  width: 100px;
-  height: 40px;
-  background-color: red;
+  margin-top: 10px;
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  height: 30px;
+  width: 100%;
+  img {
+    width: 30px;
+    height: 30px;
+    border-radius: 50px;
+  }
+  p {
+    margin-top: 5px;
+    margin-left: 5px;
+  }
 }

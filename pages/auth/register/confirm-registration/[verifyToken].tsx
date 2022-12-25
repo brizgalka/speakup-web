@@ -10,6 +10,7 @@ import {selectRegisterConfirm, setRegisterConfirm} from "../../../../ts/redux/au
 import WsConnection from "../../../../ts/http/wsConnection";
 import withReactContent from "sweetalert2-react-content";
 import Swal from "sweetalert2";
+import Head from "next/head";
 
 const VerifyToken = () => {
 
@@ -42,10 +43,11 @@ const VerifyToken = () => {
     }
 
     function copyText() {
-        var copyText = document.getElementById("verifyToken") as HTMLElement;
-        copyText.select();
-        copyText.setSelectionRange(0, 99999);
-        navigator.clipboard.writeText(copyText.value);
+        const copyText = document.getElementById("verifyToken");
+        const value = "wadd" //copyText.value;
+        //copyText.select();
+        //copyText.setSelectionRange(0, 99999);
+        navigator.clipboard.writeText(value);
     }
 
     useEffect(() => {
@@ -53,6 +55,7 @@ const VerifyToken = () => {
             WsConnection.socket.addEventListener("message", function (event: any) {
                 WsConnection.changeConnectedStatus(true)
                 const message = JSON.parse(event.data)
+                console.log(message)
                 if (message["verify"] != undefined) {
                     if (message["verify"]["status"] == "ok") {
                         console.log("Successful")
@@ -69,6 +72,11 @@ const VerifyToken = () => {
         }
         return (
             <div>
+                <Head>
+                    <title>ConfirmRegister</title>
+                    <meta name="description" content="Confirm Register in SpeakUp"/>
+                    <link rel="icon" href = "/favicon.png"/>
+                </Head>
                 <div className = {styles.confirm}>
                     <h1>Waiting for confirm account...</h1>
                     <Image src={myGif} alt="my gif" height={200} width={200} />

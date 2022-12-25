@@ -7,7 +7,7 @@ import { wrapper } from "../ts/redux/store";
 import {getUserData} from "../ts/http/userApi";
 import Router from "next/router";
 import {useDispatch} from "react-redux";
-import {setIsLoggened, setUsername} from "../ts/redux/authSlice";
+import {setId, setIsLoggened, setToken, setUsername} from "../ts/redux/authSlice";
 
 function App({ Component, pageProps }: AppProps) {
 
@@ -16,12 +16,22 @@ function App({ Component, pageProps }: AppProps) {
   useEffect(() => {
 
     const fetchData = async () => {
+      const authInterval = setInterval(() => {
+        if (!(!WsConnection.socket || WsConnection.socket.readyState !== 1)) {
+          WsConnection.socket.send(JSON.stringify({
+            "message": "isAuth"
+          }))
+        }
+      },8000)
       const result = await getUserData()
       if(result.data == "Unauthorized") {
         if(window.location.pathname == "/") { Router.push("/auth/login") }
       } else {
         dispatch(setIsLoggened(true))
         dispatch(setUsername(result.data.username))
+        dispatch(setToken(result.data.token))
+        dispatch(setId(result.data.id))
+        WsConnection.authConnection(result.data.token)
       }
     }
 

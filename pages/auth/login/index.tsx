@@ -6,10 +6,12 @@ import Link from "next/link";
 import {login} from "../../../ts/http/userApi";
 import {useState} from "react";
 import {validatePassword,validateUsername} from "../../../ts/formValidator";
-import {setIsLoggened, setUsername} from "../../../ts/redux/authSlice";
+import {setIsLoggened, setToken, setUsername} from "../../../ts/redux/authSlice";
 import {useDispatch} from "react-redux";
+import WsConnection from "../../../ts/http/wsConnection";
+import Head from "next/head";
 
-export default function loginPage() {
+export default function LoginPage() {
 
     const dispatch = useDispatch()
 
@@ -30,9 +32,12 @@ export default function loginPage() {
 
         try {
             const result = await login(username,password)
+            const token = result.data.token
             if(result) {
                 dispatch(setIsLoggened(true))
                 dispatch(setUsername(username))
+                dispatch(setToken(token))
+                WsConnection.authConnection(token)
                 Router.push("/")
             }
         } catch (e: any) {
@@ -48,6 +53,11 @@ export default function loginPage() {
 
     return(
         <>
+            <Head>
+                <title>Login</title>
+                <meta name="description" content="Login to SpeakUp"/>
+                <link rel="icon" href = "/favicon.png"/>
+            </Head>
             <div className={styles.form} style={{"height": 300}}>
                 <h1>Войти в аккаунт</h1>
                 <input value={username} onChange={e => setUsernameInput(e.target.value)} placeholder={"Username"}/><br/>

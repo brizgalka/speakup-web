@@ -1,23 +1,68 @@
 import styles from "./index.module.scss"
 import {useEffect, useState} from "react";
-import {useSelector} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import {selectIsLoggened, selectUsername} from "../../ts/redux/authSlice";
-import {getDialogs} from "../../ts/http/userApi";
+import {getDialogs, getMessages, getUserLogo, sendMessage} from "../../ts/http/userApi";
+import DialogChat from "./DialogChat";
+import {selectCurrentChat, selectCurrentMessage, setCurrentMessage} from "../../ts/redux/chatSlice";
+import NoDialog from "./NoDialog";
+import Head from "next/head";
+import Message from "./message"
+import ErrorHandler from "../../ts/errorHandler";
 
 export default function Index() {
 
     const isLoggined = useSelector(selectIsLoggened)
     const username = useSelector(selectUsername)
 
-    const [messages,setMessages] = useState(["123",":213"]);
-    const [message,setMessage] = useState("");
+    const [messages,setMessages] = useState([]);
+
+    const message = useSelector(selectCurrentMessage)
+    const chatId = useSelector(selectCurrentChat)
+
+    const dispatch = useDispatch()
 
     const [user1chats,setUser1Chats] = useState([])
     const [user2chats,setUser2Chats] = useState([])
 
-    const sendMessage = () => {
-        setMessages([...messages, message]);
-        setMessage("")
+    const [buttonActive,setButtonActive] = useState(true)
+
+    const currentChat = useSelector(selectCurrentChat)
+
+    useEffect(() => {
+        async function fetchData() {
+            return await getMessages(chatId)
+        }
+
+        fetchData().then(data => {
+            setMessages(data.data)
+        })
+    },[chatId])
+
+    const chatSendMessage = async () => {
+        if(!(message == "" || message == undefined)) {
+            setButtonActive(false)
+            try {
+                const result = await sendMessage(chatId, message)
+                if (result) {
+                    setButtonActive(true)
+                    dispatch(setCurrentMessage(""))
+                    setMessages([...messages,{
+                        message,
+                    }])
+                } else {
+                    setButtonActive(true)
+                    ErrorHandler({
+                        title: "Error",
+                        icon: "error",
+                        text: "Error",
+                        confirmButtonText: "try again"
+                    })
+                }
+            } catch (e: any) {
+                setButtonActive(true)
+            }
+        }
     }
 
     useEffect(() => {
@@ -28,20 +73,33 @@ export default function Index() {
 
         if(isLoggined) {
             fetchDialogs().then(r => {
-                const result = r.data
-                setUser1Chats(result["user1"])
-                setUser2Chats(result["user2"])
+                if(r != undefined) {
+                    const result = r.data
+                    setUser1Chats(result["user1"])
+                    setUser2Chats(result["user2"])
+                }
             })
         }
     },[isLoggined])
 
+    function renderNoChats() {
+        if(user1chats.length == 0 && user2chats.length == 0) {
+            return <DialogChat logo = "default" key = {Date.now()} chatName={String(Math.random())} />
+        }
+    }
+
     if(isLoggined) {
         return (
             <main className={styles.web}>
+                <Head>
+                    <title>SpeakUp</title>
+                    <meta name="description" content="SpeakUp main page"/>
+                    <link rel="icon" href = "/favicon.png"/>
+                </Head>
                 <header className={styles.headerContent}>
                     <div>
                         <nav className={styles.userInfo}>
-                            <img/>
+                            <img src = {"http://localhost:6060/api/static/getUserLogo?username=default"}/>
                             <div>
                                 <p>{username}</p>
                                 <p>Custom status...</p>
@@ -67,24 +125,29 @@ export default function Index() {
                     <ul className={styles.chats}>
                         {
                             user1chats.map(chat => {
-                                console.log(chat)
-                                return 1
+                                return <DialogChat key = {Math.random()} chatId = {chat.id} chatName = {chat.DialogName} logo = "default" />
                             })
                         }
                         {
                             user2chats.map(chat => {
-                                console.log(chat)
-                                return 1
+                                return <DialogChat key = {Math.random()} chatId = {chat.id} chatName = {chat.DialogName} logo = "default" />
                             })
+                        }
+                        {
+                            renderNoChats()
                         }
                     </ul>
                     <section className={styles.userChat}>
                         <div className={styles.messages}>
-                            <div className={styles.dialog}>
+                            <div  className={styles.dialog}>
                                 {
+                                    currentChat
+                                        ?
                                     messages.map(item => {
-                                        return (<h1 key={Math.random()}>{item}</h1>)
+                                        return <Message text={item.message} senderId={1} logo={process.env.NEXT_PUBLIC_apiHost + "api/static/getUserLogo?username=default"} key = {Math.random()}/>
                                     })
+                                    :
+                                        NoDialog()
                                 }
                             </div>
                             <div className={styles.textMessage}>
@@ -99,8 +162,8 @@ export default function Index() {
                                         strokeMiterlimit="10"/>
                                 </svg>
                                 <input placeholder={"Your Message"} type="text" value={message}
-                                       onChange={event => setMessage(event.target.value)}/>
-                                <svg onClick={e => sendMessage()} className={styles.sendMessage} width="32" height="32"
+                                       onChange={event => dispatch(setCurrentMessage(event.target.value))}/>
+                                <svg onClick={e => chatSendMessage()} className={styles.sendMessage} width="32" height="32"
                                      viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <circle cx="16" cy="16" r="16" fill="#5182AE"/>
                                     <path d="M17.6667 25L13.7911 18.2089L7 14.3333L23 9L17.6667 25Z" stroke="white"
@@ -113,6 +176,11 @@ export default function Index() {
                     </section>
                 </div>
             </main>
+        )
+    } else {
+        return(
+            <>
+            </>
         )
     }
 }

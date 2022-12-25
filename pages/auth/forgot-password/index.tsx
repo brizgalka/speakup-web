@@ -7,6 +7,7 @@ import {useState} from "react";
 import {validatePassword, validateUsername} from "../../../ts/formValidator";
 import {forgotPassword} from "../../../ts/http/userApi";
 import Router from "next/router";
+import Head from "next/head";
 
 export default function ForgotPassword() {
 
@@ -49,6 +50,11 @@ export default function ForgotPassword() {
 
     return(
         <>
+            <Head>
+                <title>ForgotPassword</title>
+                <meta name="description" content="Forgot password speak-up"/>
+                <link rel="icon" href = "/favicon.png"/>
+            </Head>
             <div className={styles.form} style={{"height": 250}}>
                 <h1>Восстановление пароля</h1>
                 <input value={username} onChange={e => setUsername(e.target.value)} placeholder={"Username"} type = "text"/><br/>

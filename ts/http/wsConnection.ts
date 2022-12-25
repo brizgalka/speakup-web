@@ -1,5 +1,5 @@
-import {useDispatch} from "react-redux";
-import {setRegisterConfirm} from "../redux/authSlice";
+import {useDispatch, useSelector} from "react-redux";
+import {selectTOKEN, setRegisterConfirm} from "../redux/authSlice";
 
 export default class WsConnection {
     static socket: WebSocket;
@@ -11,13 +11,14 @@ export default class WsConnection {
         WsConnection.changeConnectedStatus(true)
         const message = JSON.parse(event.data)
         console.log(message)
+        if(message["message"] != undefined) {
+
+        }
         if(message["setWsUUID"] != undefined) {
             localStorage["WsUUID"] = message["setWsUUID"]
         }
-        if(message["verify"] != undefined) {
-            if(message["verify"] == "ok") {
-                console.log("Successful")
-            }
+        if(message["notAuth"] != undefined) {
+            WsConnection.authConnection("aw")
         }
     }
 
@@ -32,16 +33,35 @@ export default class WsConnection {
 
     static onError(event: any) {
         WsConnection.changeConnectedStatus(false)
-        console.log(event)
+    }
+
+    static authConnection(token: string) {
+        if (!WsConnection.socket) return;
+        if (WsConnection.socket.readyState !== 1) return
+        WsConnection.socket.send(JSON.stringify({
+            "message": "authConnection",
+            data: {
+                token
+            }
+        }))
     }
 
     static connect_socket() {
-        WsConnection.socket = new WebSocket("ws://26.4.83.74:6061", String(localStorage["WsUUID"]));
+        WsConnection.socket = new WebSocket(process.env.NEXT_PUBLIC_wsHost, String(localStorage["WsUUID"]));
 
         WsConnection.socket.addEventListener("open", (event: any) =>  WsConnection.onOpen(event))
         WsConnection.socket.addEventListener("message", (event: any) => WsConnection.onMessage(event))
         WsConnection.socket.addEventListener("close", (event: any) =>WsConnection.onClose(event))
         WsConnection.socket.addEventListener("error",(event: any) => WsConnection.onError(event))
+    }
+
+    static authbeat() {
+        if (!WsConnection.socket) return;
+        if (WsConnection.socket.readyState !== 1) return;
+        WsConnection.socket.send(JSON.stringify({
+                "message": "isAuth",
+            }
+        ));
     }
 
     static heartbeat() {
@@ -60,9 +80,8 @@ export default class WsConnection {
 
         if (localStorage["WsUUID"] == undefined) localStorage["WsUUID"] = "no"
 
-        const interval = setInterval(() => WsConnection.heartbeat(), 500);
+        const interval1 = setInterval(() => WsConnection.heartbeat(), 1500);
+        const interval2 = setInterval(() => WsConnection.authbeat(), 1500);
         WsConnection.connect_socket()
     }
-
-
 }

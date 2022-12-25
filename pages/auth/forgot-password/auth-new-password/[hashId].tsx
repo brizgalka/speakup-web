@@ -8,6 +8,7 @@ import {changePassword, validateHashId} from "../../../../ts/http/userApi";
 import Router from "next/router";
 import ErrorHandler from "../../../../ts/errorHandler";
 import {hash} from "immutable";
+import Head from "next/head";
 
 export default function ForgotPassword() {
 
@@ -64,6 +65,11 @@ export default function ForgotPassword() {
         }
         return (
             <>
+                <Head>
+                    <title>Auth</title>
+                    <meta name="description" content="Auth page SpeakUp"/>
+                    <link rel="icon" href = "/favicon.png"/>
+                </Head>
                 <div className={styles.form} style={{"height": 300}}>
                     <h1>Восстановление пароля</h1>
                     <input value={password} onChange={e => setPassword(e.target.value)} placeholder={"Password"}
