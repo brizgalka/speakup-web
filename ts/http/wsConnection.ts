@@ -47,6 +47,7 @@ export default class WsConnection {
     }
 
     static connect_socket() {
+        // @ts-ignore
         WsConnection.socket = new WebSocket(process.env.NEXT_PUBLIC_wsHost, String(localStorage["WsUUID"]));
 
         WsConnection.socket.addEventListener("open", (event: any) =>  WsConnection.onOpen(event))

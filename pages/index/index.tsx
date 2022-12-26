@@ -31,6 +31,7 @@ export default function Index() {
 
     useEffect(() => {
         async function fetchData() {
+            // @ts-ignore
             return await getMessages(chatId)
         }
 
@@ -43,10 +44,12 @@ export default function Index() {
         if(!(message == "" || message == undefined)) {
             setButtonActive(false)
             try {
+                // @ts-ignore
                 const result = await sendMessage(chatId, message)
                 if (result) {
                     setButtonActive(true)
                     dispatch(setCurrentMessage(""))
+                    // @ts-ignore
                     setMessages([...messages,{
                         message,
                     }])
@@ -84,6 +87,7 @@ export default function Index() {
 
     function renderNoChats() {
         if(user1chats.length == 0 && user2chats.length == 0) {
+            // @ts-ignore
             return <DialogChat logo = "default" key = {Date.now()} chatName={String(Math.random())} />
         }
     }
@@ -125,11 +129,13 @@ export default function Index() {
                     <ul className={styles.chats}>
                         {
                             user1chats.map(chat => {
+                                // @ts-ignore
                                 return <DialogChat key = {Math.random()} chatId = {chat.id} chatName = {chat.DialogName} logo = "default" />
                             })
                         }
                         {
                             user2chats.map(chat => {
+                                // @ts-ignore
                                 return <DialogChat key = {Math.random()} chatId = {chat.id} chatName = {chat.DialogName} logo = "default" />
                             })
                         }
@@ -144,6 +150,7 @@ export default function Index() {
                                     currentChat
                                         ?
                                     messages.map(item => {
+                                        // @ts-ignore
                                         return <Message text={item.message} senderId={1} logo={process.env.NEXT_PUBLIC_apiHost + "api/static/getUserLogo?username=default"} key = {Math.random()}/>
                                     })
                                     :
