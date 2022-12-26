@@ -84,6 +84,10 @@
     height: 100%;
     background: #182838;
     border-left: 2px solid #233041;
+    .chatLogo {
+      position: relative;
+      width: 100%;
+    }
   }
   .userInfo {
     position: relative;

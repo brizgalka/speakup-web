@@ -45,8 +45,10 @@ const VerifyToken = () => {
     function copyText() {
         const copyText = document.getElementById("verifyToken");
         const value = "wadd" //copyText.value;
-        //copyText.select();
-        //copyText.setSelectionRange(0, 99999);
+        // @ts-ignore
+        copyText.select();
+        // @ts-ignore
+        copyText.setSelectionRange(0, 99999);
         navigator.clipboard.writeText(value);
     }
 

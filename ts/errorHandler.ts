@@ -40,3 +40,12 @@ export function swalTost(title: string,icon: iconType = "success") {
         title: title
     })
 }
+
+export function ErrorException() {
+    ErrorHandler({
+        title: "Ops!",
+        text: "Something went wrong",
+        icon: "error",
+        confirmButtonText: "Try again"
+    })
+}

@@ -69,8 +69,18 @@ export const sendMessage = async (chatId: number, message: string) => {
     return response
 }
 
-export const createChat = async (username: string) => {
-    const response = await $host.post("api/auth/createChat",{
+export const userChangePassword = async (oldPassword: string, newPassword: string) => {
+    const bodyFormData = {
+        newPassword,
+        oldPassword,
+        uuid: localStorage.getItem("WsUUID")
+    }
+    const response = await $host.post(`api/auth/change-password`,bodyFormData)
+    return response
+}
+
+export const userCreateChat = async (username: string) => {
+    const response = await $host.post("api/user/createChat",{
         username
     });
     return response
@@ -104,6 +114,15 @@ export const getDialogs = async () => {
         uuid: localStorage.getItem("WsUUID")
     }
     const response = await $host.post(`api/user/getDialogs`, bodyFormData);
+    return response
+}
+
+export const getDialogInfo = async (chatId: number) => {
+    const bodyFormData = {
+        chatId,
+        uuid: localStorage.getItem("WsUUID")
+    }
+    const response = await $host.post(`api/user/getDialogInfo`, bodyFormData);
     return response
 }
 
