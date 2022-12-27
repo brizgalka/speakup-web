@@ -10,21 +10,34 @@ import Head from "next/head";
 import Message from "./message"
 import ErrorHandler from "../../ts/errorHandler";
 import Link from "next/link";
+import useWindowSize from "../../hooks/useWindowSize";
+import {booleanLiteral} from "@babel/types";
 
 export default function Index() {
+
+    interface chatInterface {
+        id: number;
+        DialogName: string;
+    }
+
+    interface messageInterface {
+        message: string;
+    }
+
+    const size = useWindowSize();
 
     const isLoggined = useSelector(selectIsLoggened)
     const username = useSelector(selectUsername)
 
-    const [messages,setMessages] = useState([]);
+    const [messages,setMessages] = useState<messageInterface[]>([]);
 
     const message = useSelector(selectCurrentMessage)
     const chatId = useSelector(selectCurrentChat)
 
     const dispatch = useDispatch()
 
-    const [user1chats,setUser1Chats] = useState([])
-    const [user2chats,setUser2Chats] = useState([])
+    const [user1chats,setUser1Chats] = useState<chatInterface[]>([])
+    const [user2chats,setUser2Chats] = useState<chatInterface[]>([])
 
     const [chatInfo,setChatInfo] = useState({})
 
@@ -34,27 +47,40 @@ export default function Index() {
 
     useEffect(() => {
         async function fetchData() {
-            // @ts-ignore
-            return await getMessages(chatId)
+            try {
+                if(chatId != undefined) return await getMessages(chatId)
+            } catch (e: any) {
+                //pass
+            }
         }
 
         const fetchDialogInfo = async () => {
-            // @ts-ignore
-            return await getDialogInfo(chatId)
+            try {
+                if(chatId != undefined) return await getDialogInfo(chatId)
+            } catch (e: any) {
+                //pass
+            }
         }
 
         fetchDialogInfo().then(r => {
             if(r != undefined) {
-                const result = r.data
-                setChatInfo({
-                    logo: process.env.NEXT_PUBLIC_apiHost + "api/static/getUserLogo?username=default",
-                    chatName: result.DialogName
-                })
+                if(r.status == 200) {
+                    const result = r.data
+                    setChatInfo({
+                        logo: process.env.NEXT_PUBLIC_apiHost + "api/static/getUserLogo?username=default",
+                        chatName: result.DialogName
+                    })
+                }
             }
         })
 
-        fetchData().then(data => {
-            setMessages(data.data)
+        fetchData().then(r => {
+            if(r != undefined) {
+                if (r.status == 200) {
+                    const result = r.data
+                    setMessages(result)
+                }
+            }
         })
     },[chatId])
 
@@ -62,8 +88,8 @@ export default function Index() {
         if(!(message == "" || message == undefined)) {
             setButtonActive(false)
             try {
-                // @ts-ignore
-                const result = await sendMessage(chatId, message)
+                let result = undefined
+                if(chatId != undefined) result = await sendMessage(chatId, message)
                 if (result) {
                     setButtonActive(true)
                     dispatch(setCurrentMessage(""))
@@ -89,29 +115,39 @@ export default function Index() {
     useEffect(() => {
 
         const fetchDialogs = async () => {
-            return await getDialogs()
+            try {
+                return await getDialogs()
+            } catch (e: any) {
+                //pass
+            }
         }
 
         if(isLoggined) {
             fetchDialogs().then(r => {
                 if(r != undefined) {
-                    const result = r.data
-                    setUser1Chats(result["user1"])
-                    setUser2Chats(result["user2"])
+                    if (r.status == 200) {
+                        const result = r.data
+                        setUser1Chats(result["user1"])
+                        setUser2Chats(result["user2"])
+                    }
                 }
             })
-
         }
     },[isLoggined])
 
     function renderNoChats() {
         if(user1chats.length == 0 && user2chats.length == 0) {
-            // @ts-ignore
-            return <DialogChat logo = "default" key = {Date.now()} chatName={String(Math.random())} />
+            return <DialogChat chatId={1} logo = "default" key = {Date.now()} chatName={String(Math.random())} />
         }
     }
 
-    if(isLoggined) {
+    function isMobile() {
+        if(size.width != undefined) return size.width < 550
+    }
+
+    function canRender():boolean { return (isLoggined != undefined && typeof window !== 'undefined') }
+
+    if(canRender()) {
         return (
             <main className={styles.web}>
                 <Head>
@@ -147,16 +183,14 @@ export default function Index() {
                     </div>
                 </header>
                 <div className={styles.mess}>
-                    <ul className={styles.chats}>
+                    <ul className={styles.chats} style={(isMobile() && currentChat == undefined) ? {width:"100%"} : {width:"310px"}}>
                         {
                             user1chats.map(chat => {
-                                // @ts-ignore
                                 return <DialogChat key = {Math.random()} chatId = {chat.id} chatName = {chat.DialogName} logo = "default" />
                             })
                         }
                         {
                             user2chats.map(chat => {
-                                // @ts-ignore
                                 return <DialogChat key = {Math.random()} chatId = {chat.id} chatName = {chat.DialogName} logo = "default" />
                             })
                         }
@@ -164,53 +198,63 @@ export default function Index() {
                             renderNoChats()
                         }
                     </ul>
-                    <section className={styles.userChat}>
-                        <div className={styles.messages}>
-                            <div  className={styles.dialog}>
-                                {
-                                    currentChat
-                                        ?
-                                    messages.map(item => {
-                                        // @ts-ignore
-                                        return <Message text={item.message} senderId={1} logo={process.env.NEXT_PUBLIC_apiHost + "api/static/getUserLogo?username=default"} key = {Math.random()}/>
-                                    })
-                                    :
-                                        NoDialog()
-                                }
-                            </div>
-                            <div className={styles.textMessage}>
-                                <svg className={styles.attachment} width="32" height="32" viewBox="0 0 32 32"
-                                     fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path
-                                        d="M32 16C32 24.8366 24.8366 32 16 32C7.16344 32 0 24.8366 0 16C0 7.16344 7.16344 0 16 0C24.8366 0 32 7.16344 32 16ZM0.8 16C0.8 24.3947 7.60527 31.2 16 31.2C24.3947 31.2 31.2 24.3947 31.2 16C31.2 7.60527 24.3947 0.8 16 0.8C7.60527 0.8 0.8 7.60527 0.8 16Z"
-                                        fill="#2E4A63"/>
-                                    <path
-                                        d="M17.6897 23.7014L22.9109 16.7481C23.7593 15.6175 24.1353 14.1875 23.9564 12.7725C23.7774 11.3575 23.058 10.0733 21.9565 9.20233C21.4216 8.74479 20.8003 8.40564 20.1316 8.20615C19.4629 8.00667 18.7612 7.95116 18.0706 8.04311C17.38 8.13506 16.7154 8.37248 16.1185 8.74048C15.5216 9.10848 15.0052 9.5991 14.6019 10.1816L8.70699 17.9907C7.19116 19.8504 8.38618 22.105 9.73358 23.1912C10.4555 23.7921 11.3794 24.0764 12.3044 23.9824C13.2295 23.8884 14.081 23.4237 14.6741 22.6893L20.5369 14.8802C20.7172 14.6404 20.8497 14.3664 20.9267 14.0741C21.0038 13.7817 21.0239 13.4766 20.9859 13.1762C20.9479 12.8759 20.8526 12.5861 20.7053 12.3236C20.5581 12.0611 20.3619 11.8309 20.1278 11.6463C19.655 11.2747 19.0581 11.1103 18.4675 11.189C17.8769 11.2676 17.3406 11.5829 16.9759 12.0659L12.0274 18.649"
-                                        stroke="white"
-                                        strokeMiterlimit="10"/>
-                                </svg>
-                                <input placeholder={"Your Message"} type="text" value={message}
-                                       onChange={event => dispatch(setCurrentMessage(event.target.value))}/>
-                                <svg onClick={e => chatSendMessage()} className={styles.sendMessage} width="32" height="32"
-                                     viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <circle cx="16" cy="16" r="16" fill="#5182AE"/>
-                                    <path d="M17.6667 25L13.7911 18.2089L7 14.3333L23 9L17.6667 25Z" stroke="white"
-                                          strokeMiterlimit="10" strokeLinejoin="round"/>
-                                </svg>
-                            </div>
-                        </div>
-                        <section className={styles.chatInfo}>
+                    {
+                        // @ts-ignore
+                        (!isMobile() || (isMobile() && currentChat != undefined)) &&
+                        <>
+                            <section className={styles.userChat}>
+                                <div className={styles.messages}>
+                                    <div  className={styles.dialog}>
+                                        {
+                                            currentChat
+                                                ?
+                                                messages.map(item => {
+                                                    return <Message text={item.message} senderId={1} logo={process.env.NEXT_PUBLIC_apiHost + "api/static/getUserLogo?username=default"} key = {Math.random()}/>
+                                                })
+                                                :
+                                                NoDialog()
+                                        }
+                                    </div>
+                                    <div className={styles.textMessage}>
+                                        {
+                                            currentChat &&
+                                            <>
+                                                <svg className={styles.attachment} width="32" height="32" viewBox="0 0 32 32"
+                                                     fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <path
+                                                        d="M32 16C32 24.8366 24.8366 32 16 32C7.16344 32 0 24.8366 0 16C0 7.16344 7.16344 0 16 0C24.8366 0 32 7.16344 32 16ZM0.8 16C0.8 24.3947 7.60527 31.2 16 31.2C24.3947 31.2 31.2 24.3947 31.2 16C31.2 7.60527 24.3947 0.8 16 0.8C7.60527 0.8 0.8 7.60527 0.8 16Z"
+                                                        fill="#2E4A63"/>
+                                                    <path
+                                                        d="M17.6897 23.7014L22.9109 16.7481C23.7593 15.6175 24.1353 14.1875 23.9564 12.7725C23.7774 11.3575 23.058 10.0733 21.9565 9.20233C21.4216 8.74479 20.8003 8.40564 20.1316 8.20615C19.4629 8.00667 18.7612 7.95116 18.0706 8.04311C17.38 8.13506 16.7154 8.37248 16.1185 8.74048C15.5216 9.10848 15.0052 9.5991 14.6019 10.1816L8.70699 17.9907C7.19116 19.8504 8.38618 22.105 9.73358 23.1912C10.4555 23.7921 11.3794 24.0764 12.3044 23.9824C13.2295 23.8884 14.081 23.4237 14.6741 22.6893L20.5369 14.8802C20.7172 14.6404 20.8497 14.3664 20.9267 14.0741C21.0038 13.7817 21.0239 13.4766 20.9859 13.1762C20.9479 12.8759 20.8526 12.5861 20.7053 12.3236C20.5581 12.0611 20.3619 11.8309 20.1278 11.6463C19.655 11.2747 19.0581 11.1103 18.4675 11.189C17.8769 11.2676 17.3406 11.5829 16.9759 12.0659L12.0274 18.649"
+                                                        stroke="white"
+                                                        strokeMiterlimit="10"/>
+                                                </svg>
+                                                <input placeholder={"Your Message"} type="text" value={message}
+                                                       onChange={event => dispatch(setCurrentMessage(event.target.value))}/>
+                                                <svg onClick={e => chatSendMessage()} className={styles.sendMessage} width="32" height="32"
+                                                     viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <circle cx="16" cy="16" r="16" fill="#5182AE"/>
+                                                    <path d="M17.6667 25L13.7911 18.2089L7 14.3333L23 9L17.6667 25Z" stroke="white"
+                                                          strokeMiterlimit="10" strokeLinejoin="round"/>
+                                                </svg>
+                                            </>
+                                        }
 
-                            <img src = {
-                                // @ts-ignore
-                                chatInfo.logo
-                            } className = {styles.chatLogo} />
-                            <h2>{
-                                // @ts-ignore
-                                chatInfo.chatName
-                            }</h2>
-                        </section>
-                    </section>
+                                    </div>
+                                </div>
+                                <section className={styles.chatInfo}>
+                                    <img src = {
+                                        // @ts-ignore
+                                        chatInfo.logo
+                                    } className = {styles.chatLogo} />
+                                    <h2>{
+                                        // @ts-ignore
+                                        chatInfo.chatName
+                                    }</h2>
+                                </section>
+                            </section>
+                        </>
+                    }
                 </div>
             </main>
         )

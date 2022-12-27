@@ -106,8 +106,16 @@
   }
 }
 
-@media screen and (max-width: 800px) {
+@media screen and (max-width: 900px) {
   .web .chatInfo {
     display: none;
+  }
+  .userChat {
+    .messages {
+      width: 100%;
+      .dialog {
+        width: 100%;
+      }
+    }
   }
 }

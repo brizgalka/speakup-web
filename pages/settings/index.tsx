@@ -37,16 +37,7 @@ const Index = () => {
 
     return (
         <div className={styles.settings}>
-            <h1>Информация</h1>
-            <hr/>
-            <h1>Сменить пароль</h1>
-            <input value = {password} onChange={e => setPassword(e.target.value)} placeholder={"Старый пароль"} />
-            <input value = {newPassword} onChange={e => setNewPassword(e.target.value)} placeholder={"Новый пароль"}/>
-            <button onClick={() => changePassword()} >Сменить</button>
-            <h1>Создать чат</h1>
-            <input value = {chatUsername} onChange={e => setChatUsername(e.target.value)} placeholder={"Username"}/>
-            <button onClick={() => createChat()} >Создать чат</button>
-            <Link href={"/"}>
+            <Link href={"/"} style={{float: "right"}}>
                 <svg width="32" height="32" viewBox="0 0 32 32" fill="none"
                      xmlns="http://www.w3.org/2000/svg">
                     <path
@@ -60,6 +51,15 @@ const Index = () => {
                         stroke="white" strokeWidth="1.5" strokeMiterlimit="10"/>
                 </svg>
             </Link>
+            <h1>Информация</h1>
+            <hr/>
+            <h1>Сменить пароль</h1>
+            <input value = {password} onChange={e => setPassword(e.target.value)} placeholder={"Старый пароль"} />
+            <input value = {newPassword} onChange={e => setNewPassword(e.target.value)} placeholder={"Новый пароль"}/>
+            <button onClick={() => changePassword()} >Сменить</button>
+            <h1>Создать чат</h1>
+            <input value = {chatUsername} onChange={e => setChatUsername(e.target.value)} placeholder={"Username"}/>
+            <button onClick={() => createChat()} >Создать чат</button>
         </div>
     );
 };
