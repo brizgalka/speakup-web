@@ -15,7 +15,9 @@ export default function Message (props: messagePropsInterface) {
     return (
         <div className = {styles.message}>
             <img src = {logo}/>
-            <p>{text}</p>
+            <div className={styles.text}>
+                <p>{text}</p>
+            </div>
         </div>
     );
 };

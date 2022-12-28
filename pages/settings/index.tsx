@@ -1,8 +1,9 @@
 import React, {useState} from 'react';
-import {userChangePassword, userCreateChat} from "../../ts/http/userApi";
+import {logOut, userChangePassword, userCreateChat} from "../../ts/http/userApi";
 import styles from "./settings.module.scss"
 import ErrorHandler, {ErrorException} from "../../ts/errorHandler";
 import Link from "next/link";
+import {router} from "next/client";
 
 const Index = () => {
 
@@ -54,6 +55,11 @@ const Index = () => {
             <h1>Информация</h1>
             <hr/>
             <h1>Сменить пароль</h1>
+            <br />
+            <button onClick={async () => {
+                await logOut()
+                router.push("/auth/login")
+            }} >Выйти из аккаунта</button>
             <input value = {password} onChange={e => setPassword(e.target.value)} placeholder={"Старый пароль"} />
             <input value = {newPassword} onChange={e => setNewPassword(e.target.value)} placeholder={"Новый пароль"}/>
             <button onClick={() => changePassword()} >Сменить</button>

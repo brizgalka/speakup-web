@@ -21,9 +21,7 @@ export default function DialogChat(props: messagePropsInterface) {
     return(
         <div onClick={() => openChat()} className = {styles.message}>
             <img src = {"http://localhost:6060/api/static/getUserLogo?username=default"}/>
-            <div>
-                <p>{chatName}</p>
-            </div>
+            <p>{chatName}</p>
         </div>
     )
 }

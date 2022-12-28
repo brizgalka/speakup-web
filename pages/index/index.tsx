@@ -79,6 +79,9 @@ export default function Index() {
                 if (r.status == 200) {
                     const result = r.data
                     setMessages(result)
+                    const objDiv = document.getElementById("dialogMessages");
+                    // @ts-ignore
+                    objDiv.scrollTop = objDiv.scrollHeight;
                 }
             }
         })
@@ -102,12 +105,19 @@ export default function Index() {
                     ErrorHandler({
                         title: "Error",
                         icon: "error",
-                        text: "Error",
+                        text: "error",
                         confirmButtonText: "try again"
                     })
                 }
             } catch (e: any) {
                 setButtonActive(true)
+                console.log(e.response)
+                ErrorHandler({
+                    title: "Error",
+                    icon: "error",
+                    text: "error",
+                    confirmButtonText: "try again"
+                })
             }
         }
     }
@@ -204,7 +214,7 @@ export default function Index() {
                         <>
                             <section className={styles.userChat}>
                                 <div className={styles.messages}>
-                                    <div  className={styles.dialog}>
+                                    <div id={"dialogMessages"} className={styles.dialog}>
                                         {
                                             currentChat
                                                 ?

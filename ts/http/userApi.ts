@@ -69,6 +69,11 @@ export const sendMessage = async (chatId: number, message: string) => {
     return response
 }
 
+export const logOut = async () => {
+    const response = await $host.post(`api/auth/logout`)
+    return response
+}
+
 export const userChangePassword = async (oldPassword: string, newPassword: string) => {
     const bodyFormData = {
         newPassword,
