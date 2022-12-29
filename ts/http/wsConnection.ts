@@ -11,14 +11,8 @@ export default class WsConnection {
         WsConnection.changeConnectedStatus(true)
         const message = JSON.parse(event.data)
         console.log(message)
-        if(message["message"] != undefined) {
-
-        }
         if(message["setWsUUID"] != undefined) {
             localStorage["WsUUID"] = message["setWsUUID"]
-        }
-        if(message["notAuth"] != undefined) {
-            WsConnection.authConnection("aw")
         }
     }
 
@@ -81,8 +75,10 @@ export default class WsConnection {
 
         if (localStorage["WsUUID"] == undefined) localStorage["WsUUID"] = "no"
 
-        const interval1 = setInterval(() => WsConnection.heartbeat(), 1500);
-        const interval2 = setInterval(() => WsConnection.authbeat(), 1500);
+        const interval1 = setInterval(() => WsConnection.heartbeat(), 2000);
+        const interval2 = setInterval(() => WsConnection.authbeat(), 2000);
         WsConnection.connect_socket()
+
+        return [interval1,interval2]
     }
 }

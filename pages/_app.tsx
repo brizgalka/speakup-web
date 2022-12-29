@@ -6,11 +6,12 @@ import {useEffect} from "react";
 import { wrapper } from "../ts/redux/store";
 import {getUserData} from "../ts/http/userApi";
 import Router from "next/router";
-import {useDispatch} from "react-redux";
-import {setId, setIsLoggened, setToken, setUsername} from "../ts/redux/authSlice";
+import {useDispatch, useSelector} from "react-redux";
+import {selectTOKEN, setId, setIsLoggened, setToken, setUsername} from "../ts/redux/authSlice";
 
 function App({ Component, pageProps }: AppProps) {
 
+  const selectToken = useSelector(selectTOKEN);
   const dispatch = useDispatch()
 
   useEffect(() => {
@@ -23,6 +24,12 @@ function App({ Component, pageProps }: AppProps) {
           }))
         }
       },8000)
+      WsConnection.socket.addEventListener("message",(event) => {
+        const message = JSON.parse(event.data).message
+        if(message == "notAuth" && selectToken != undefined) {
+          WsConnection.authConnection(selectToken)
+        }
+      })
       const result = await getUserData()
       if(result.data == "Unauthorized") {
         if(window.location.pathname == "/") { Router.push("/auth/login") }
@@ -35,10 +42,16 @@ function App({ Component, pageProps }: AppProps) {
       }
     }
 
-    WsConnection.createConnection()
+    const intervals: NodeJS.Timer[] = WsConnection.createConnection()
 
     fetchData()
         .catch(console.error);
+
+    return function () {
+      clearInterval(intervals[0])
+      clearInterval(intervals[1])
+    }
+
   },[])
   return <Component {...pageProps} />
 }

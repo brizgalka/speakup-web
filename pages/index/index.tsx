@@ -12,6 +12,7 @@ import ErrorHandler from "../../ts/errorHandler";
 import Link from "next/link";
 import useWindowSize from "../../hooks/useWindowSize";
 import {booleanLiteral} from "@babel/types";
+import WsConnection from "../../ts/http/wsConnection";
 
 export default function Index() {
 
@@ -44,6 +45,17 @@ export default function Index() {
     const [buttonActive,setButtonActive] = useState(true)
 
     const currentChat = useSelector(selectCurrentChat)
+
+    useEffect(() => {
+        if(WsConnection.socket != undefined) {
+            WsConnection.socket.addEventListener("message",(event) => {
+                const message = JSON.parse(event.data).message
+                if(message == "new message") {
+                  alert("new message")
+                }
+            })
+        }
+    },[WsConnection.socket])
 
     useEffect(() => {
         async function fetchData() {
