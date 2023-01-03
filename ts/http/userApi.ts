@@ -131,6 +131,11 @@ export const getDialogInfo = async (chatId: number) => {
     return response
 }
 
+export const getUserAgree = async () => {
+    const response = await $host.get(`api/static/getUserAgree`);
+    return response
+}
+
 export const getUserData = async () => {
     const response = await $host.get(`api/user/getUserData`);
     return response

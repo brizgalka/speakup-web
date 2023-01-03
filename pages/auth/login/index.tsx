@@ -6,7 +6,7 @@ import Link from "next/link";
 import {login} from "../../../ts/http/userApi";
 import {useState} from "react";
 import {validatePassword,validateUsername} from "../../../ts/formValidator";
-import {setIsLoggened, setToken, setUsername} from "../../../ts/redux/authSlice";
+import {setId, setIsLoggened, setToken, setUsername} from "../../../ts/redux/authSlice";
 import {useDispatch} from "react-redux";
 import WsConnection from "../../../ts/http/wsConnection";
 import Head from "next/head";
@@ -33,12 +33,23 @@ export default function LoginPage() {
         try {
             const result = await login(username,password)
             const token = result.data.token
-            if(result) {
+            const id = result.data.id
+            if(result.status == 200) {
+                console.log(result)
                 dispatch(setIsLoggened(true))
                 dispatch(setUsername(username))
                 dispatch(setToken(token))
+                dispatch(setId(id))
                 WsConnection.authConnection(token)
-                Router.push("/")
+                await Router.push("/")
+            } else {
+                ErrorHandler({
+                    title: "Ops!",
+                    text: result.data,
+                    icon: "error",
+                    confirmButtonText:"ok"
+                })
+                setButtonActive(true)
             }
         } catch (e: any) {
             setButtonActive(true)
@@ -61,9 +72,9 @@ export default function LoginPage() {
             <div className={styles.form} style={{"height": 300}}>
                 <h1>Войти в аккаунт</h1>
                 <input value={username} onChange={e => setUsernameInput(e.target.value)} placeholder={"Username"}/><br/>
-                <input value={password} onChange={e => setPassword(e.target.value)} placeholder={"password"}/><br/>
-                <button disabled={!buttonActive} onClick={() => {
-                    onLogin()
+                <input type={"password"} value={password} onChange={e => setPassword(e.target.value)} placeholder={"password"}/><br/>
+                <button disabled={!buttonActive} onClick={async () => {
+                    await onLogin()
                 }}>Войти</button>
                 <Link href = "/auth/register">
                     <button>Зарегистрироваться</button>

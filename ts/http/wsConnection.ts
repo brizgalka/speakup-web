@@ -1,6 +1,3 @@
-import {useDispatch, useSelector} from "react-redux";
-import {selectTOKEN, setRegisterConfirm} from "../redux/authSlice";
-
 export default class WsConnection {
     static socket: WebSocket;
     static connected = false;

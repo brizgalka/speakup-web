@@ -32,13 +32,16 @@ function App({ Component, pageProps }: AppProps) {
       })
       const result = await getUserData()
       if(result.data == "Unauthorized") {
-        if(window.location.pathname == "/") { Router.push("/auth/login") }
+        if(window.location.pathname == "/") { await Router.push("/auth/login") }
       } else {
         dispatch(setIsLoggened(true))
         dispatch(setUsername(result.data.username))
         dispatch(setToken(result.data.token))
         dispatch(setId(result.data.id))
         WsConnection.authConnection(result.data.token)
+      }
+      return function () {
+        clearInterval(authInterval)
       }
     }
 

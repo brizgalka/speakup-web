@@ -64,8 +64,8 @@ const Index = () => {
                     router.push("/auth/login")
                 }}>Выйти из аккаунта
                 </button>
-                <input value={password} onChange={e => setPassword(e.target.value)} placeholder={"Старый пароль"}/>
-                <input value={newPassword} onChange={e => setNewPassword(e.target.value)} placeholder={"Новый пароль"}/>
+                <input type={"password"} value={password} onChange={e => setPassword(e.target.value)} placeholder={"Старый пароль"}/>
+                <input type={"password"} value={newPassword} onChange={e => setNewPassword(e.target.value)} placeholder={"Новый пароль"}/>
                 <button onClick={() => changePassword()}>Сменить</button>
                 <h1>Создать чат</h1>
                 <input value={chatUsername} onChange={e => setChatUsername(e.target.value)} placeholder={"Username"}/>

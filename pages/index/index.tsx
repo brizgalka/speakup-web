@@ -1,5 +1,5 @@
 import styles from "./index.module.scss"
-import {useEffect, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {selectIsLoggened, selectUsername} from "../../ts/redux/authSlice";
 import {getDialogInfo, getDialogs, getMessages, getUserLogo, sendMessage} from "../../ts/http/userApi";
@@ -25,6 +25,8 @@ export default function Index() {
         message: string;
     }
 
+    const inputRef = useRef(undefined)
+
     const size = useWindowSize();
 
     const isLoggined = useSelector(selectIsLoggened)
@@ -45,6 +47,24 @@ export default function Index() {
     const [buttonActive,setButtonActive] = useState(true)
 
     const currentChat = useSelector(selectCurrentChat)
+
+    useEffect(() => {
+        if(inputRef.current != undefined) {
+            const input = inputRef.current
+            // @ts-ignore
+            input.addEventListener("keypress", function(event) {
+                if (event.key === "Enter") {
+                    event.preventDefault();
+                    // @ts-ignore
+                    chatSendMessage()
+                }
+            });
+            return function () {
+                // @ts-ignore
+                input.removeEventListener("keypress")
+            }
+        }
+    },[inputRef.current])
 
     useEffect(() => {
         if(WsConnection.socket != undefined) {
@@ -100,6 +120,10 @@ export default function Index() {
     },[chatId])
 
     const chatSendMessage = async () => {
+
+        console.log(message)
+        console.log(chatId)
+
         if(!(message == "" || message == undefined)) {
             setButtonActive(false)
             try {
@@ -159,7 +183,7 @@ export default function Index() {
 
     function renderNoChats() {
         if(user1chats.length == 0 && user2chats.length == 0) {
-            return <DialogChat chatId={1} logo = "default" key = {Date.now()} chatName={String(Math.random())} />
+            return <h1>Нет Диалогов</h1>
         }
     }
 

@@ -72,10 +72,10 @@ export default function ForgotPassword() {
                 </Head>
                 <div className={styles.form} style={{"height": 300}}>
                     <h1>Восстановление пароля</h1>
-                    <input value={password} onChange={e => setPassword(e.target.value)} placeholder={"Password"}
-                           type="text"/><br/>
+                    <input  value={password} onChange={e => setPassword(e.target.value)} placeholder={"Password"}
+                            type={"password"}/><br/>
                     <input value={passwordAgain} onChange={e => setPasswordAgain(e.target.value)}
-                           placeholder={"Password again"} type="text"/><br/>
+                           placeholder={"Password again"} type={"password"}/><br/>
                     <button disabled={!buttonActive} onClick={() => {
                         onChangePassword()
                     }}>Сменить пароль
