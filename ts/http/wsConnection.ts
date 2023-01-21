@@ -38,13 +38,14 @@ export default class WsConnection {
     }
 
     static connect_socket() {
-        // @ts-ignore
-        WsConnection.socket = new WebSocket(process.env.NEXT_PUBLIC_wsHost, String(localStorage["WsUUID"]));
-
-        WsConnection.socket.addEventListener("open", (event: any) =>  WsConnection.onOpen(event))
-        WsConnection.socket.addEventListener("message", (event: any) => WsConnection.onMessage(event))
-        WsConnection.socket.addEventListener("close", (event: any) =>WsConnection.onClose(event))
-        WsConnection.socket.addEventListener("error",(event: any) => WsConnection.onError(event))
+        if(WsConnection.socket == undefined) {
+            // @ts-ignore
+            WsConnection.socket = new WebSocket(process.env.NEXT_PUBLIC_wsHost, String(localStorage["WsUUID"]));
+            WsConnection.socket.addEventListener("open", (event: any) => WsConnection.onOpen(event))
+            WsConnection.socket.addEventListener("message", (event: any) => WsConnection.onMessage(event))
+            WsConnection.socket.addEventListener("close", (event: any) => WsConnection.onClose(event))
+            WsConnection.socket.addEventListener("error", (event: any) => WsConnection.onError(event))
+        }
     }
 
     static authbeat() {
